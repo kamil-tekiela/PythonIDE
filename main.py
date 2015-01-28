@@ -3,11 +3,11 @@ import tkinter.scrolledtext  as ScrolledText
 from tkinter import Menu  as Menu 
 from tkinter import messagebox, filedialog
 from tkinter import BOTH, END, LEFT
-
+#test
 root = tkinter.Tk(className="Just another Text Editor")
 textPad = ScrolledText.ScrolledText(root, width=40, height=40) # creates text area
 filename = None
-
+#testcomment
 # create a menu
 def new_command():
 	textPad.delete('1.0', END)	#clear the text editor
