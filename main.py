@@ -64,6 +64,7 @@ class Editor:
 		menu.add_cascade(label="Help", menu=helpmenu)
 		helpmenu.add_command(label="About...", command=self.about_command)
 		# end of menu creation
+<<<<<<< HEAD
 		
 		# toolbar creation
 		toolbar = Frame(root, bg = "grey")
@@ -78,6 +79,8 @@ class Editor:
 		
 		
 		
+=======
+>>>>>>> origin/master
 		text=''
 		self.filename = file
 		if file:
