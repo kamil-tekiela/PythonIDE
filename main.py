@@ -1,69 +1,99 @@
-import tkinter
-import tkinter.scrolledtext  as ScrolledText 
-from tkinter import Menu  as Menu 
-from tkinter import messagebox, filedialog
-from tkinter import BOTH, END, LEFT
-#test
-root = tkinter.Tk(className="Just another Text Editor")
-textPad = ScrolledText.ScrolledText(root, width=40, height=40) # creates text area
-filename = None
-#testcomment
-# create a menu
-def new_command():
-	textPad.delete('1.0', END)	#clear the text editor
+from tkinter import *
+import tkinter.scrolledtext  as scrolledText 
 
-def open_command():
-	global filename
-	file = filedialog.askopenfile(parent=root,mode='rb',title='Select a file')
-	if file != None:
-		filename = file.name
-		print(filename)
-		contents = file.read()
+class Editor:
+
+	def new_command(self):
 		textPad.delete('1.0', END)	#clear the text editor
-		textPad.insert('1.0',contents)
-		file.close()
- 
-def save_command():
-	if filename==None:
-		file = filedialog.asksaveasfile(mode='w', initialfile=filename)
-	else:
-		file = open(filename, mode='w')
-	if file != None:
-	# slice off the last character from get, as an extra return is added
-		data = textPad.get('1.0', END+'-1c')
-		file.write(data)
-		file.close()
-		
-def saveAs_command():
-	global filename
-	file = filedialog.asksaveasfilename()
-	if file != None:
-		filename = file
-		with open(filename, mode='w') as file:
+
+	def open_command(self):
+		file = filedialog.askopenfile(parent=root,mode='rb',title='Select a file')
+		if file != None:
+			self.filename = file.name
+			contents = file.read()
+			textPad.delete('1.0', END)	#clear the text editor
+			textPad.insert('1.0',contents)
+			file.close()
+	 
+	def save_command(self):
+		if not self.filename:
+			file = filedialog.asksaveasfile(mode='w')
+		else:
+			file = open(self.filename, mode='w')
+		if file != None:
+		# slice off the last character from get, as an extra return is added
+			self.filename = file.name
 			data = textPad.get('1.0', END+'-1c')
 			file.write(data)
+			file.close()
+			
+	def saveAs_command(self):
+		#print(textPad.get('0.0',END))
+		file = filedialog.asksaveasfilename()
+		if file != None and file != "":
+			self.filename = file
+			with open(filename, mode='w') as file:
+				data = textPad.get('1.0', END+'-1c')
+				file.write(data)
 
-def exit_command():
-    if messagebox.askokcancel("Quit", "Do you really want to quit?"):
-        root.destroy()
- 
-def about_command():
-    label = messagebox.showinfo("About", "Just Another TextPad \n Copyright \n No rights left to reserve")
+	def exit_command(self):
+		if messagebox.askokcancel("Quit", "Do you really want to quit?"):
+			root.destroy()
+	 
+	def about_command(self):
+		label = messagebox.showinfo("About", "Just Another TextPad \n Copyright \n No rights left to reserve")
 	
-menu = Menu(root)
-root.config(menu=menu)
-filemenu = Menu(menu)
-menu.add_cascade(label="File", menu=filemenu)
-filemenu.add_command(label="New", command=new_command)
-filemenu.add_command(label="Open...", command=open_command)
-filemenu.add_command(label="Save", command=save_command)
-filemenu.add_command(label="Save As...", command=saveAs_command)
-filemenu.add_separator()
-filemenu.add_command(label="Exit", command=exit_command)
-helpmenu = Menu(menu)
-menu.add_cascade(label="Help", menu=helpmenu)
-helpmenu.add_command(label="About...", command=about_command)
-# end of menu creation
- 
-textPad.pack()
-root.mainloop()
+	def __init__(self, file=None):
+		global root, textPad
+		root = Tk(className="Python IDE")
+		#scrollbar = Scrollbar(root) 
+		#scrollbar.pack(side=LEFT, fill=Y)
+		#textPad = scrolledText.ScrolledText(root, width=80, height=20, xscrollcommand=scrollbar.set) # creates text area			
+		textPad = scrolledText.ScrolledText(root, width=80, height=20) # creates text area			
+		menu = Menu(root)
+		root.config(menu=menu)
+		filemenu = Menu(menu, tearoff=0)
+		menu.add_cascade(label="File", menu=filemenu)
+		filemenu.add_command(label="New", command=self.new_command)
+		filemenu.add_command(label="Open...", command=self.open_command)
+		filemenu.add_command(label="Save", command=self.save_command)
+		filemenu.add_command(label="Save As...", command=self.saveAs_command)
+		filemenu.add_separator()
+		filemenu.add_command(label="Exit", command=self.exit_command)
+		helpmenu = Menu(menu, tearoff=0)
+		menu.add_cascade(label="Help", menu=helpmenu)
+		helpmenu.add_command(label="About...", command=self.about_command)
+		# end of menu creation
+		
+		# toolbar creation
+		toolbar = Frame(root, bg = "grey")
+		saveBtn = Button(toolbar, text="Save", command=self.save_command)
+		saveBtn.pack(side=LEFT, padx=2, pady=2)
+		toolbar.pack(side=TOP, fill=X)
+		
+		# status bar creation
+		status = Label(root, text="Info", bd=1, relief=SUNKEN, anchor=W)
+		status.pack(side=BOTTOM, fill=X)
+		
+		
+		
+		
+		text=''
+		self.filename = file
+		if file:
+			with open(file, mode='rb') as f:
+				text = f.read()
+		textPad.delete('1.0', END)
+		textPad.insert('1.0', text)
+		textPad.mark_set(INSERT, '1.0')
+		textPad.focus()
+		
+		textPad.pack()
+		root.mainloop()
+
+if __name__ == '__main__':
+    try:
+        Editor(file=sys.argv[1])
+    except IndexError:
+        Editor()
+
