@@ -1,5 +1,9 @@
+import tkinter
 from tkinter import *
-import tkinter.scrolledtext  as scrolledText 
+import tkinter.scrolledtext as scrolledText
+from tkinter import Menu
+from tkinter import messagebox, filedialog
+from tkinter import BOTH, END, LEFT
 
 class Editor:
 
@@ -42,14 +46,19 @@ class Editor:
 	 
 	def about_command(self):
 		label = messagebox.showinfo("About", "Just Another TextPad \n Copyright \n No rights left to reserve")
+		
+	def get_position(self, event):
+		"""get the line and column number of the text insertion point"""
+		line, column = textPad.index('insert').split('.')
+		end, gb = textPad.index('end').split('.')
+		self.lines = int(end)-1
+		s = "Lines: %d   line=%s column=%s" % (self.lines, line, column)
+		statusText.set(s)
 	
 	def __init__(self, file=None):
-		global root, textPad
-		root = Tk(className="Python IDE")
-		#scrollbar = Scrollbar(root) 
-		#scrollbar.pack(side=LEFT, fill=Y)
-		#textPad = scrolledText.ScrolledText(root, width=80, height=20, xscrollcommand=scrollbar.set) # creates text area			
-		textPad = scrolledText.ScrolledText(root, width=80, height=20) # creates text area			
+		global root, textPad, statusText
+		root = Tk(className="Python IDE")	
+		textPad = scrolledText.ScrolledText(root, width=80, height=20) # creates text area	
 		menu = Menu(root)
 		root.config(menu=menu)
 		filemenu = Menu(menu, tearoff=0)
@@ -64,7 +73,6 @@ class Editor:
 		menu.add_cascade(label="Help", menu=helpmenu)
 		helpmenu.add_command(label="About...", command=self.about_command)
 		# end of menu creation
-<<<<<<< HEAD
 		
 		# toolbar creation
 		toolbar = Frame(root, bg = "grey")
@@ -73,14 +81,13 @@ class Editor:
 		toolbar.pack(side=TOP, fill=X)
 		
 		# status bar creation
-		status = Label(root, text="Info", bd=1, relief=SUNKEN, anchor=W)
+		statusText = StringVar()
+		status = Label(root, text="Info", textvariable=statusText, bd=1, relief=SUNKEN, anchor=W)
 		status.pack(side=BOTTOM, fill=X)
 		
 		
+		textPad.bind("<KeyRelease>", self.get_position)		
 		
-		
-=======
->>>>>>> origin/master
 		text=''
 		self.filename = file
 		if file:
