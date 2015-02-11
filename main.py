@@ -1,9 +1,34 @@
 import tkinter
+import tkinter as tk
 from tkinter import *
 import tkinter.scrolledtext as scrolledText
 from tkinter import Menu
 from tkinter import messagebox, filedialog
 from tkinter import BOTH, END, LEFT
+
+
+class TextLineNumbers(tk.Canvas):
+    def __init__(self, *args, **kwargs):
+        tk.Canvas.__init__(self, *args, **kwargs)
+        self.textwidget = None
+
+    def attach(self, text_widget):
+        self.textwidget = text_widget
+
+    def redraw(self, *args):
+        '''redraw line numbers'''
+        self.delete("all")
+
+        i = self.textwidget.index("@0,0")
+        while True :
+            dline= self.textwidget.dlineinfo(i)
+            if dline is None: break
+            y = dline[1]
+            linenum = str(i).split(".")[0]
+            self.create_text(2,y,anchor="nw", text=linenum)
+            i = self.textwidget.index("%s+1line" % i)
+
+
 
 class Editor:
 
@@ -54,6 +79,10 @@ class Editor:
 		self.lines = int(end)-1
 		s = "Lines: %d   line=%s column=%s" % (self.lines, line, column)
 		statusText.set(s)
+		
+	def key_press(self, event):
+		self.linenumbers.redraw(event)
+		self.get_position(event)
 	
 	def __init__(self, file=None):
 		global root, textPad, statusText
@@ -85,8 +114,15 @@ class Editor:
 		status = Label(root, text="Info", textvariable=statusText, bd=1, relief=SUNKEN, anchor=W)
 		status.pack(side=BOTTOM, fill=X)
 		
+		#self.draw_line_nums(5)
+		self.linenumbers = TextLineNumbers(root, width=30)
+		self.linenumbers.attach(textPad)
+		self.linenumbers.pack(side="left", fill="y")
 		
-		textPad.bind("<KeyRelease>", self.get_position)		
+		textPad.bind("<KeyPress>", self.key_press)
+		textPad.bind("<KeyRelease>", self.key_press)	
+		root.bind("<Button>", self.key_press)		
+		root.bind("<Motion>", self.key_press)		
 		
 		text=''
 		self.filename = file
@@ -106,4 +142,6 @@ if __name__ == '__main__':
         Editor(file=sys.argv[1])
     except IndexError:
         Editor()
+		
+		
 
