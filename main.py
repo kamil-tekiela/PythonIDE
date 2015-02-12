@@ -32,6 +32,23 @@ class TextLineNumbers(tk.Canvas):
 
 class Editor:
 
+	def highlight_pattern(self, pattern, tag, start="1.0", end="end",regexp=False):
+		global root, textPad, statusText
+		start = textPad.index(start)
+		end = textPad.index(end)
+		textPad.mark_set("matchStart", start)
+		textPad.mark_set("matchEnd", start)
+		textPad.mark_set("searchLimit", end)
+
+		count = tk.IntVar()
+		while True:
+			index = textPad.search(pattern, "matchEnd","searchLimit",
+								count=count, regexp=regexp)
+			if index == "": break
+			textPad.mark_set("matchStart", index)
+			textPad.mark_set("matchEnd", "%s+%sc" % (index, count.get()))
+			textPad.tag_add(tag, "matchStart", "matchEnd")
+
 	def new_command(self):
 		textPad.delete('1.0', END)	#clear the text editor
 
@@ -81,8 +98,15 @@ class Editor:
 		statusText.set(s)
 		
 	def key_press(self, event):
+		global root, textPad, statusText
 		self.linenumbers.redraw(event)
 		self.get_position(event)
+		textPad.tag_remove("red", "1.0", END)
+		textPad.tag_remove("blue", "1.0", END)
+		textPad.tag_remove("green", "1.0", END)
+		self.highlight_pattern("private", "red")
+		self.highlight_pattern("static", "blue")
+		self.highlight_pattern('int', "green", regexp=True)
 	
 	def __init__(self, file=None):
 		global root, textPad, statusText
@@ -114,15 +138,20 @@ class Editor:
 		status = Label(root, text="Info", textvariable=statusText, bd=1, relief=SUNKEN, anchor=W)
 		status.pack(side=BOTTOM, fill=X)
 		
-		#self.draw_line_nums(5)
 		self.linenumbers = TextLineNumbers(root, width=30)
 		self.linenumbers.attach(textPad)
 		self.linenumbers.pack(side="left", fill="y")
 		
 		textPad.bind("<KeyPress>", self.key_press)
 		textPad.bind("<KeyRelease>", self.key_press)	
-		root.bind("<Button>", self.key_press)		
-		root.bind("<Motion>", self.key_press)		
+		#root.bind("<Button>", self.key_press)		
+		textPad.vbar.bind("<Motion>", self.key_press)		
+		
+		textPad.tag_configure("red", foreground="#ff0000")
+		textPad.tag_configure("blue", foreground="#0000ff")
+		textPad.tag_configure("green", foreground="#00ff00")
+		textPad.tag_configure("black", foreground="#000000")
+
 		
 		text=''
 		self.filename = file
