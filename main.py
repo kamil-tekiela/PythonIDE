@@ -101,14 +101,33 @@ class Editor:
 		proc = subprocess.Popen(cmd, shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 		out, err = proc.communicate()
 		proc.wait()
-		self.compilationText.set ( str(err))
+		lines = err.decode("utf-8")
+		lines = lines.split("\r\n")
+		s = ''
+		for line in lines:
+			s = s+str(line)+"\n"
+		self.compilationLabel.config(text=str(s))
+		if proc.returncode == 0:
+			s = "Compiled Successfully"
+			self.compilationLabel.config(text=str(s))
+		#self.compilationLabel.config(text=str(err))
+		#self.compilationText.set ( str(err))
 		return proc.returncode==0
 		
 	def compileRun_command(self):
 		# if it compiles then run it
 		if self.compile_command():
 			cmd = 'java.exe -cp . ' + self.filename.rsplit('/',1)[1].rsplit('.', 2)[0]
-			proc = subprocess.call(cmd, shell=True)
+			proc = subprocess.Popen(cmd, shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+			out, err = proc.communicate()
+			proc.wait()
+			lines = out.decode("utf-8")
+			lines = lines.split("\r\n")
+			s = ''
+			for line in lines:
+				s = s+str(line)+"\n"
+			self.executionLabel.config(text=str(s))
+			#proc = subprocess.call(cmd, shell=True)
 			#print (proc.stdout)
 
 	def exit_command(self):
@@ -208,7 +227,12 @@ class Editor:
 		textPad.pack()
 		
 		self.compilationText = StringVar()
-		Label(textvariable=self.compilationText, bd=1, relief=SUNKEN).pack(fill=X)
+		self.compilationLabel = Label(bd=1, relief=SUNKEN, justify=LEFT)
+		self.compilationLabel.pack(fill=X)
+
+		self.executionText = StringVar()
+		self.executionLabel = Label(bd=1, relief=SUNKEN, justify=LEFT)
+		self.executionLabel.pack(fill=X)
 		
 		root.mainloop()
 
