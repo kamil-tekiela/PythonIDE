@@ -6,6 +6,7 @@ from tkinter import Menu
 from tkinter import messagebox, filedialog
 from tkinter import BOTH, END, LEFT
 import subprocess
+import os
 
 def loadSyntaxHL():
 	dic = {'red':[], 'green':[], 'blue':[], 'purple':[], 'comment':[]}
@@ -13,8 +14,9 @@ def loadSyntaxHL():
 		for line in f:
 			line = line.split('=')
 			s = line[0].strip()
-			l = [x.strip() for x in line[1].split(',')]
-			dic[s] = l
+			if s in dic:
+				l = [x.strip() for x in line[1].split(',')]
+				dic[s] = l
 	return dic
 
 class TextLineNumbers(tk.Canvas):
@@ -61,6 +63,7 @@ class Editor:
 
 	def new_command(self):
 		textPad.delete('1.0', END)	#clear the text editor
+		self.key_press()
 
 	def open_command(self):
 		file = filedialog.askopenfile(parent=root,mode='rb',title='Select a file')
@@ -70,6 +73,7 @@ class Editor:
 			textPad.delete('1.0', END)	#clear the text editor
 			textPad.insert('1.0',contents)
 			file.close()
+			self.key_press()
 	 
 	def save_command(self):
 		if not self.filename:
@@ -93,17 +97,19 @@ class Editor:
 				file.write(data)
 				
 	def compile_command(self):
-		cmd = 'javac ' + self.filename
+		self.save_command()
+		cmd = 'javac ' + self.filename + " 2>&1"
 		proc = subprocess.Popen(cmd, shell=True)
-		print (proc.stdout)
+		proc.wait()
+		self.compilationText.set (str(proc.stdout) + str(proc.stderr))
+		return proc.returncode==0
 		
 	def compileRun_command(self):
-		self.save_command()
-		self.compile_command()
-		cmd = 'java.exe -cp . ' + self.filename.rsplit('/',1)[1].rsplit('.', 2)[0] 
-		#print (self.filename)
-		proc = subprocess.call(cmd, shell=True)
-		#print (proc.stdout)
+		# if it compiles then run it
+		if self.compile_command():
+			cmd = 'java.exe -cp . ' + self.filename.rsplit('/',1)[1].rsplit('.', 2)[0]
+			proc = subprocess.call(cmd, shell=True)
+			#print (proc.stdout)
 
 	def exit_command(self):
 		if messagebox.askokcancel("Quit", "Do you really want to quit?"):
@@ -120,7 +126,7 @@ class Editor:
 		s = "Lines: %d   line=%s column=%s" % (self.lines, line, column)
 		statusText.set(s)
 		
-	def key_press(self, event):
+	def key_press(self, event=None):
 		global root, textPad, statusText
 		self.linenumbers.redraw(event)
 		self.get_position(event)
@@ -200,6 +206,10 @@ class Editor:
 		self.dic = loadSyntaxHL()
 		
 		textPad.pack()
+		
+		self.compilationText = StringVar()
+		Label(textvariable=self.compilationText, bd=1, relief=SUNKEN).pack(fill=X)
+		
 		root.mainloop()
 
 if __name__ == '__main__':
