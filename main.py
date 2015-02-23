@@ -88,7 +88,6 @@ class Editor:
 			file.close()
 			
 	def saveAs_command(self):
-		#print(textPad.get('0.0',END))
 		file = filedialog.asksaveasfilename()
 		if file != None and file != "":
 			self.filename = file
@@ -98,10 +97,11 @@ class Editor:
 				
 	def compile_command(self):
 		self.save_command()
-		cmd = 'javac ' + self.filename + " 2>&1"
-		proc = subprocess.Popen(cmd, shell=True)
+		cmd = 'javac ' + self.filename
+		proc = subprocess.Popen(cmd, shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		out, err = proc.communicate()
 		proc.wait()
-		self.compilationText.set (str(proc.stdout) + str(proc.stderr))
+		self.compilationText.set ( str(err))
 		return proc.returncode==0
 		
 	def compileRun_command(self):
