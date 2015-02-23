@@ -130,7 +130,7 @@ class Editor:
 	def __init__(self, file=None):
 		global root, textPad, statusText
 		root = Tk(className="Python IDE")	
-		textPad = scrolledText.ScrolledText(root, width=80, height=20) # creates text area	
+		textPad = scrolledText.ScrolledText(root, width=80, height=20, tabs=("0.5c")) # creates text area	
 		menu = Menu(root)
 		root.config(menu=menu)
 		filemenu = Menu(menu, tearoff=0)
