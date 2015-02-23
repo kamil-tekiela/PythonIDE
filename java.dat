@@ -1,0 +1,5 @@
+green = abstract, class, extends, default, implements, interface, static
+red = private, protected, public, final
+blue = boolean, byte, char, float, int, long, double
+purple = break, case, catch, do, else, finally, for, if, switch, throw, throws, try, while, goto, continue, void
+grey = super, this
