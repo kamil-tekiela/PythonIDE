@@ -7,6 +7,16 @@ from tkinter import messagebox, filedialog
 from tkinter import BOTH, END, LEFT
 
 
+def loadSyntaxHL():
+	dic = {'red':[], 'green':[], 'blue':[], 'purple':[]}
+	with open('java.dat', mode='r') as f:
+		for line in f:
+			line = line.split('=')
+			s = line[0].strip()
+			l = [x.strip() for x in line[1].split(',')]
+			dic[s] = l
+	return dic
+
 class TextLineNumbers(tk.Canvas):
     def __init__(self, *args, **kwargs):
         tk.Canvas.__init__(self, *args, **kwargs)
@@ -104,9 +114,16 @@ class Editor:
 		textPad.tag_remove("red", "1.0", END)
 		textPad.tag_remove("blue", "1.0", END)
 		textPad.tag_remove("green", "1.0", END)
-		self.highlight_pattern("private", "red")
-		self.highlight_pattern("static", "blue")
-		self.highlight_pattern('int', "green", regexp=True)
+		textPad.tag_remove("purple", "1.0", END)
+		for color in self.dic.keys():
+			for word in self.dic[color]:
+				self.highlight_pattern(r"\y%s\y" % word, color, regexp=True)
+		# for word in self.dic['blue']:
+			# self.highlight_pattern(r"\y%s\y" % word, "blue", regexp=True)
+		# for word in self.dic['green']:
+			# self.highlight_pattern(r"\y%s\y" % word, "green", regexp=True)
+		# for word in self.dic['purple']:
+			# self.highlight_pattern(r"\y%s\y" % word, "purple", regexp=True)
 	
 	def __init__(self, file=None):
 		global root, textPad, statusText
@@ -151,6 +168,7 @@ class Editor:
 		textPad.tag_configure("blue", foreground="#0000ff")
 		textPad.tag_configure("green", foreground="#00ff00")
 		textPad.tag_configure("black", foreground="#000000")
+		textPad.tag_configure("purple", foreground="#800080")
 
 		
 		text=''
@@ -163,6 +181,8 @@ class Editor:
 		textPad.mark_set(INSERT, '1.0')
 		textPad.focus()
 		
+		self.dic = loadSyntaxHL()
+		
 		textPad.pack()
 		root.mainloop()
 
@@ -171,6 +191,3 @@ if __name__ == '__main__':
         Editor(file=sys.argv[1])
     except IndexError:
         Editor()
-		
-		
-
