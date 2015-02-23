@@ -1,5 +1,4 @@
-class Testing{
-public static void main(String[] args){
-	int var;
-	}
-}
+class CompilerTest{
+public static void main(String[] args){
+	int var;
+}}

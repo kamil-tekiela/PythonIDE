@@ -95,6 +95,15 @@ class Editor:
 	def compile_command(self):
 		cmd = 'javac ' + self.filename
 		proc = subprocess.Popen(cmd, shell=True)
+		print (proc.stdout)
+		
+	def compileRun_command(self):
+		self.save_command()
+		self.compile_command()
+		cmd = 'java.exe -cp . ' + self.filename.rsplit('/',1)[1].rsplit('.', 2)[0] 
+		#print (self.filename)
+		proc = subprocess.call(cmd, shell=True)
+		#print (proc.stdout)
 
 	def exit_command(self):
 		if messagebox.askokcancel("Quit", "Do you really want to quit?"):
@@ -152,6 +161,8 @@ class Editor:
 		saveBtn.pack(side=LEFT, padx=2, pady=2)
 		compileBtn = Button(toolbar, text="Compile", command=self.compile_command)
 		compileBtn.pack(side=LEFT, padx=2, pady=2)
+		compileAndRunBtn = Button(toolbar, text="Compile and Run", command=self.compileRun_command)
+		compileAndRunBtn.pack(side=LEFT, padx=2, pady=2)
 		toolbar.pack(side=TOP, fill=X)
 		
 		# status bar creation
