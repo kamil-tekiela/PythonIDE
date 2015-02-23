@@ -5,7 +5,7 @@ import tkinter.scrolledtext as scrolledText
 from tkinter import Menu
 from tkinter import messagebox, filedialog
 from tkinter import BOTH, END, LEFT
-
+import subprocess
 
 def loadSyntaxHL():
 	dic = {'red':[], 'green':[], 'blue':[], 'purple':[], 'comment':[]}
@@ -91,6 +91,10 @@ class Editor:
 			with open(filename, mode='w') as file:
 				data = textPad.get('1.0', END+'-1c')
 				file.write(data)
+				
+	def compile_command(self):
+		cmd = 'javac ' + self.filename
+		proc = subprocess.Popen(cmd, shell=True)
 
 	def exit_command(self):
 		if messagebox.askokcancel("Quit", "Do you really want to quit?"):
@@ -146,6 +150,8 @@ class Editor:
 		toolbar = Frame(root, bg = "grey")
 		saveBtn = Button(toolbar, text="Save", command=self.save_command)
 		saveBtn.pack(side=LEFT, padx=2, pady=2)
+		compileBtn = Button(toolbar, text="Compile", command=self.compile_command)
+		compileBtn.pack(side=LEFT, padx=2, pady=2)
 		toolbar.pack(side=TOP, fill=X)
 		
 		# status bar creation
