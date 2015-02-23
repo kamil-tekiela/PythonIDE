@@ -8,7 +8,7 @@ from tkinter import BOTH, END, LEFT
 
 
 def loadSyntaxHL():
-	dic = {'red':[], 'green':[], 'blue':[], 'purple':[]}
+	dic = {'red':[], 'green':[], 'blue':[], 'purple':[], 'comment':[]}
 	with open('java.dat', mode='r') as f:
 		for line in f:
 			line = line.split('=')
@@ -116,14 +116,12 @@ class Editor:
 		textPad.tag_remove("green", "1.0", END)
 		textPad.tag_remove("purple", "1.0", END)
 		for color in self.dic.keys():
-			for word in self.dic[color]:
-				self.highlight_pattern(r"\y%s\y" % word, color, regexp=True)
-		# for word in self.dic['blue']:
-			# self.highlight_pattern(r"\y%s\y" % word, "blue", regexp=True)
-		# for word in self.dic['green']:
-			# self.highlight_pattern(r"\y%s\y" % word, "green", regexp=True)
-		# for word in self.dic['purple']:
-			# self.highlight_pattern(r"\y%s\y" % word, "purple", regexp=True)
+			if color == 'comment':
+				for word in self.dic[color]:
+					self.highlight_pattern(r"%s[^\n]*" % word, color, regexp=True)
+			else:
+				for word in self.dic[color]:
+					self.highlight_pattern(r"\y%s\y" % word, color, regexp=True)
 	
 	def __init__(self, file=None):
 		global root, textPad, statusText
@@ -169,6 +167,7 @@ class Editor:
 		textPad.tag_configure("green", foreground="#00ff00")
 		textPad.tag_configure("black", foreground="#000000")
 		textPad.tag_configure("purple", foreground="#800080")
+		textPad.tag_configure("comment", foreground="#AAAAAA")
 
 		
 		text=''
